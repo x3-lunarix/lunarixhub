@@ -21,8 +21,6 @@ Window:SelectTab(1)
 
 local Tabs = {
 	Main = Window:Tab({Title = 'Main', Icon = 'dumbbell'}),
-	MainSec = Window:Tab({Title = 'Main 2', Icon = 'dumbbell'}),
-	Settings = Window:Tab({Title = 'Settings', Icon = 'settings'})
 }
 
 
@@ -36,6 +34,8 @@ end
 
 
 Tabs.Main:Section({Title = 'Main Section'})
+
+AutoBubble = false
 
 Tabs.Main:Toggle({
     Title = 'Auto Bubbles',
@@ -60,6 +60,8 @@ end)
 local player = game.Players.LocalPlayer
 local character = player.Character or player.CharacterAdded:Wait()
 local hrp = character:WaitForChild("HumanoidRootPart")
+
+AutoSell = false
 
 Tabs.Main:Toggle({
     Title = 'Auto Sell',
@@ -176,6 +178,8 @@ Tabs.Main:Dropdown({
         Eggmm = v
     end,
 })
+
+AutoOpenEgg = false
 
 Tabs.Main:Toggle({
     Title = 'Auto Open Egg',

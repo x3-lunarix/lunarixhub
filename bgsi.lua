@@ -167,7 +167,9 @@ Tabs.Main:Toggle({
 task.spawn(function()
 	while task.wait(1) do 
 		if autoHatchEnabled then
-			pcall(HatchEgg)
+			pcall(function()
+				HatchEgg()
+			end)
 		end
 	end
 end)

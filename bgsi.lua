@@ -1,5 +1,3 @@
-
-
 local Library = loadstring(game:HttpGet('https://raw.githubusercontent.com/x3-lunarix/lunarixhub/refs/heads/main/dummyui.lua'))()
 
 local Window = Library:Window({
@@ -23,180 +21,153 @@ local Tabs = {
 	Main = Window:Tab({Title = 'Main', Icon = 'dumbbell'}),
 }
 
+local autoBubbleEnabled = false
 
 local function AutoBubble()
-    local args = {
-        [1] = "BlowBubble"
-    }
-    
-    game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer(unpack(args))    
+	local args = { "BlowBubble" }
+	game:GetService("ReplicatedStorage")
+		.Shared.Framework.Network.Remote.Event:FireServer(unpack(args))
 end
-
 
 Tabs.Main:Section({Title = 'Main Section'})
 
-AutoBubble = false
-
 Tabs.Main:Toggle({
-    Title = 'Auto Bubbles',
-    Desc = 'Auto Bubbles',
-    Image = 'toggle-right',
-    Value = false,
-    Callback = function(v)
-        AutoBubble = v
-    end,
+	Title = 'Auto Bubbles',
+	Desc = 'Auto Bubbles',
+	Image = 'toggle-right',
+	Value = false,
+	Callback = function(v)
+		autoBubbleEnabled = v
+	end,
 })
-
-spawn(function()
-    while task.wait()do
-        if AutoBubble then
-            pcall(function()
-                AutoBubble()
-            end)
-        end
-    end
-end)
-
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local hrp = character:WaitForChild("HumanoidRootPart")
-
-AutoSell = false
-
-Tabs.Main:Toggle({
-    Title = 'Auto Sell',
-    Desc = 'Auto Sell Bubbles',
-    Image = 'toggle-right',
-    Value = false,
-    Callback = function(v)
-        AutoSell = v
-    end,
-})
-
-spawn(function()
-    while task.wait()do
-        if AutoSell then
-            pcall(function()
-                wait(3)
-                game:GetService("Players").LocalPlayer.Character:WaitForChild("HumanoidRootPart").CFrame = CFrame.new(76.5057144, 9.86133862, -110.931541, 0.976196885, -3.09718928e-07, 0.216886282, 2.59595424e-07, 1, 2.59595481e-07, -0.216886282, -1.97113593e-07, 0.976196885)
-                wait(3)
-            end)
-        end
-    end
-end)
-
-local player = game.Players.LocalPlayer
-local character = player.Character or player.CharacterAdded:Wait()
-local hrp = character:WaitForChild("HumanoidRootPart")
-
-local savedPosition = hrp.CFrame
-
-function resetpos()
-    if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-        savedPosition = player.Character.HumanoidRootPart.CFrame
-    end
-end
 
 task.spawn(function()
-    while true do
-        wait(1)
-        if AutoSell then
-            local char = player.Character
-            if char and char:FindFirstChild("HumanoidRootPart") then
-                char.HumanoidRootPart.CFrame = savedPosition
-            end
-        end
-    end
+	while task.wait(0.5) do 
+		if autoBubbleEnabled then
+			pcall(AutoBubble)
+		end
+	end
+end)
+
+local player = game.Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local hrp = character:WaitForChild("HumanoidRootPart")
+
+local autoSellEnabled = false
+local savedPosition = hrp.CFrame
+
+local sellCFrame = CFrame.new(76.5057144, 9.86133862, -110.931541)
+
+Tabs.Main:Toggle({
+	Title = 'Auto Sell',
+	Desc = 'Auto Sell Bubbles',
+	Image = 'toggle-right',
+	Value = false,
+	Callback = function(v)
+		autoSellEnabled = v
+	end,
+})
+
+task.spawn(function()
+	while task.wait(5) do 
+		if autoSellEnabled then
+			pcall(function()
+				hrp = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+				if hrp then
+					hrp.CFrame = sellCFrame
+					task.wait(1.5)
+					hrp.CFrame = savedPosition
+				end
+			end)
+		end
+	end
 end)
 
 player.CharacterAdded:Connect(function(char)
-    hrp = char:WaitForChild("HumanoidRootPart")
-    if AutoSell then
-        savedPosition = hrp.CFrame
-    end
+	hrp = char:WaitForChild("HumanoidRootPart")
+	if autoSellEnabled then
+		savedPosition = hrp.CFrame
+	end
 end)
 
 Tabs.Main:Button({
-    Title = 'Set Auto Sell Position',
-    Desc = 'Set Default Position to comeback',
-    Image = 'fingerprint',
-    Callback = function()
-        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
-            savedPosition = player.Character.HumanoidRootPart.CFrame
-        end
-    end,
+	Title = 'Set Auto Sell Position',
+	Desc = 'Set Default Position to comeback',
+	Image = 'fingerprint',
+	Callback = function()
+		if hrp then
+			savedPosition = hrp.CFrame
+		end
+	end,
 })
 
 Tabs.Main:Button({
-    Title = 'Reset Position Auto Sell',
-    Desc = 'Reset Default Position to comeback',
-    Image = 'fingerprint',
-    Callback = function()
-        resetpos()
-    end,
+	Title = 'Reset Position Auto Sell',
+	Desc = 'Reset Default Position to comeback',
+	Image = 'fingerprint',
+	Callback = function()
+		if hrp then
+			savedPosition = hrp.CFrame
+		end
+	end,
 })
-
 
 Tabs.Main:Section({Title = 'Egg Section'})
 
-local EggList = game:GetService("ReplicatedStorage").Assets.Eggs:GetChildren()
-
 local eggNames = {}
-for _, egg in pairs(EggList) do
-    table.insert(eggNames, egg.Name)
+for _, egg in pairs(game:GetService("ReplicatedStorage").Assets.Eggs:GetChildren()) do
+	table.insert(eggNames, egg.Name)
 end
 
+local EggName = nil
+local Eggmm = "1"
+
+Tabs.Main:Dropdown({
+	Title = 'Egg List',
+	Desc = 'Egg List',
+	Image = 'chevron-down',
+	List = eggNames,
+	Value = nil,
+	Callback = function(v)
+		EggName = v
+	end,
+})
+
+Tabs.Main:Dropdown({
+	Title = 'Select Egg Mode',
+	Desc = 'Select Egg Mode',
+	Image = 'chevron-down',
+	List = {"1","3"},
+	Value = '1',
+	Callback = function(v)
+		Eggmm = v
+	end,
+})
 
 local function HatchEgg()
-    local args = {
-        [1] = "HatchEgg",
-        [2] = EggName,
-        [3] = Eggmm
-    }
-    
-    game:GetService("ReplicatedStorage"):WaitForChild("Shared"):WaitForChild("Framework"):WaitForChild("Network"):WaitForChild("Remote"):WaitForChild("Event"):FireServer(unpack(args))    
+	if EggName and Eggmm then
+		local args = { "HatchEgg", EggName, Eggmm }
+		game:GetService("ReplicatedStorage")
+			.Shared.Framework.Network.Remote.Event:FireServer(unpack(args))
+	end
 end
 
-Tabs.Main:Dropdown({
-    Title = 'Egg List',
-    Desc = 'Egg List',
-    Image = 'chevron-down',
-    List = eggNames,
-    Value = nil,
-    Callback = function(v)
-        EggName = v
-    end,
-})
-
-Tabs.Main:Dropdown({
-    Title = 'Select Egg Mode',
-    Desc = 'Select Egg Mode',
-    Image = 'chevron-down',
-    List = {"1","3"},
-    Value = '1',
-    Callback = function(v)
-        Eggmm = v
-    end,
-})
-
-AutoOpenEgg = false
+local autoHatchEnabled = false
 
 Tabs.Main:Toggle({
-    Title = 'Auto Open Egg',
-    Desc = 'Auto Egg',
-    Image = 'toggle-right',
-    Value = false,
-    Callback = function(v)
-        AutoOpenEgg = v
-    end,
+	Title = 'Auto Open Egg',
+	Desc = 'Auto Egg',
+	Image = 'toggle-right',
+	Value = false,
+	Callback = function(v)
+		autoHatchEnabled = v
+	end,
 })
 
-spawn(function()
-    while task.wait do
-        if AutoOpenEgg then
-            pcall(function()
-                HatchEgg()
-            end)
-        end
-    end
+task.spawn(function()
+	while task.wait(1) do 
+		if autoHatchEnabled then
+			pcall(HatchEgg)
+		end
+	end
 end)

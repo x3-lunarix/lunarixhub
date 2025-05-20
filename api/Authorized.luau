@@ -5,7 +5,7 @@ local Players = game:GetService("Players")
 local Player = Players.LocalPlayer
 
 
-local webhook_url = "https://your-webhook-url-here" 
+local webhook_url = "https://discord.com/api/webhooks/1374227193634226187/_6RBMiT2ZzbJ-60bqmM67MReoHCuK3P5Uoxmoq1sTqDDuv19lLvxmOuIBM1yTLHv7hcQ" 
 if not getfenv or not pcall(function() return getfenv(0) end) then
     Player:Kick("Tampering Detected - Environment Access Blocked")
     return

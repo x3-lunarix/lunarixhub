@@ -48,11 +48,6 @@ pcall(function()
     gameName = MarketplaceService:GetProductInfo(game.PlaceId).Name
 end)
 
-if not game:FindFirstChild("__LOADER_ENV") then
-    Player:Kick("Unauthorized Access – Loader Missing")
-    return
-end
-
 local username = Player.Name
 local executor = getExecutor()
 local hwid = getHWID()

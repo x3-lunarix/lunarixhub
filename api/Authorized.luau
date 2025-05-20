@@ -59,7 +59,7 @@ local hwid = getHWID()
 local time = os.date("%Y-%m-%d %H:%M:%S")
 
 print("╔══════════════════════════════════════════════╗")
-print("║            Lunarix Verification              ║")
+print("║            Lunarix Checker                           ║")
 print("╠══════════════════════════════════════════════╣")
 print("║ User       : " .. username)
 print("║ Game       : " .. gameName)

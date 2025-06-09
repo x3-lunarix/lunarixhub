@@ -3,45 +3,47 @@ local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
+local LogService = game:GetService("LogService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
--- Clear any existing Trigon UI
+-- Clear previous UI instances
 for _, gui in pairs(playerGui:GetChildren()) do
     if gui.Name == "TrigonLunaLoader" or gui.Name == "TrigonLunaMain" then
         gui:Destroy()
     end
 end
 
--- Theme colors
+-- Theme Colors
 local Colors = {
-    Background = Color3.fromRGB(255, 255, 255),        -- white background
-    PanelBg = Color3.fromRGB(245, 247, 250),           -- very light gray panel background
-    TextPrimary = Color3.fromRGB(17, 24, 39),          -- dark gray for main text
-    TextSecondary = Color3.fromRGB(107, 114, 128),     -- #6b7280 neutral gray
-    Accent = Color3.fromRGB(79, 70, 229),              -- Indigo-600
-    AccentLight = Color3.fromRGB(199, 210, 254),       -- Indigo-200 light for hover
-    ShadowColor = Color3.fromRGB(200, 210, 230),       -- subtle shadow color
-    ButtonBg = Color3.fromRGB(251, 253, 255),          -- almost white button bg
-    ButtonHoverBg = Color3.fromRGB(229, 231, 235),     -- button hover light gray
-    ButtonActiveBg = Color3.fromRGB(199, 210, 254),    -- button active indigo
+    Background = Color3.fromRGB(255, 255, 255),        -- White background
+    PanelBg = Color3.fromRGB(245, 247, 250),           -- Light gray panel background
+    TextPrimary = Color3.fromRGB(17, 24, 39),          -- Dark gray text
+    TextSecondary = Color3.fromRGB(107, 114, 128),     -- Neutral gray text
+    Accent = Color3.fromRGB(79, 70, 229),              -- Indigo base accent
+    AccentLight = Color3.fromRGB(199, 210, 254),       -- Indigo lighter accent for hover
+    ShadowColor = Color3.fromRGB(200, 210, 230),       -- Soft shadow color
+    ButtonBg = Color3.fromRGB(251, 253, 255),          -- Button background (almost white)
+    ButtonHoverBg = Color3.fromRGB(229, 231, 235),     -- Button hover color
+    ButtonActiveBg = Color3.fromRGB(79, 70, 229),      -- Button active/highlight color
 }
 
 local FONT_BOLD = Enum.Font.GothamBold
+local FONT_SEMIBOLD = Enum.Font.GothamSemibold
 local FONT_REGULAR = Enum.Font.Gotham
 
-local CornerRadius = UDim.new(0, 12)
 local BaseZIndex = 1000
+local CornerRadius = UDim.new(0, 16)
 
--- FUNCTION: Create rounded frame with shadow
+-- Utility: Create rounded frame with subtle shadow
 local function CreateRoundedFrame(parent, size, position, bgColor, name, zindex)
     local frame = Instance.new("Frame")
     frame.Name = name or "RoundedFrame"
     frame.Size = size
     frame.Position = position
     frame.BackgroundColor3 = bgColor or Colors.PanelBg
-    frame.AnchorPoint = Vector2.new(0,0)
+    frame.AnchorPoint = Vector2.new(0, 0)
     frame.ZIndex = zindex or BaseZIndex
     frame.BorderSizePixel = 0
     frame.Parent = parent
@@ -50,22 +52,20 @@ local function CreateRoundedFrame(parent, size, position, bgColor, name, zindex)
     corner.CornerRadius = CornerRadius
     corner.Parent = frame
 
-    -- subtle shadow frame
     local shadow = Instance.new("Frame")
-    shadow.Name = frame.Name.."_Shadow"
-    shadow.Size = UDim2.new(1, 0, 1, 0)
-    shadow.Position = UDim2.new(0, 0, 0, 0)
+    shadow.Name = frame.Name .. "_Shadow"
+    shadow.Size = UDim2.new(1, 8, 1, 8)
+    shadow.Position = UDim2.new(0, -4, 0, -4)
     shadow.BackgroundColor3 = Colors.ShadowColor
     shadow.ZIndex = (zindex or BaseZIndex) - 1
-    shadow.AnchorPoint = Vector2.new(0,0)
+    shadow.AnchorPoint = Vector2.new(0, 0)
     shadow.BorderSizePixel = 0
+    shadow.Transparency = 0.7
     shadow.Parent = frame
 
     local shadowCorner = Instance.new("UICorner")
     shadowCorner.CornerRadius = CornerRadius
     shadowCorner.Parent = shadow
-
-    shadow.BackgroundTransparency = 0.85
 
     return frame
 end
@@ -74,15 +74,15 @@ end
 local loaderGui = Instance.new("ScreenGui")
 loaderGui.Name = "TrigonLunaLoader"
 loaderGui.ResetOnSpawn = false
-loaderGui.DisplayOrder = BaseZIndex + 10
+loaderGui.DisplayOrder = BaseZIndex + 100
 loaderGui.Parent = playerGui
 
 local loaderFrame = CreateRoundedFrame(loaderGui,
-    UDim2.new(0, 480, 0, 120),
+    UDim2.new(0, 450, 0, 120),
     UDim2.new(0.5, 0, 0.5, 0),
     Colors.PanelBg,
     "LoaderFrame",
-    BaseZIndex + 10
+    BaseZIndex + 100
 )
 loaderFrame.AnchorPoint = Vector2.new(0.5, 0.5)
 
@@ -90,23 +90,23 @@ local loaderTitle = Instance.new("TextLabel")
 loaderTitle.Name = "LoaderTitle"
 loaderTitle.Parent = loaderFrame
 loaderTitle.BackgroundTransparency = 1
-loaderTitle.Position = UDim2.new(0, 0, 0.15, 0)
+loaderTitle.Position = UDim2.new(0, 0, 0.2, 0)
 loaderTitle.Size = UDim2.new(1, 0, 0, 48)
 loaderTitle.Font = FONT_BOLD
-loaderTitle.TextSize = 36
+loaderTitle.TextSize = 34
 loaderTitle.TextColor3 = Colors.TextPrimary
-loaderTitle.Text = "Loading Trigon Luna UI..."
+loaderTitle.Text = "Loading Trigon Luna UI"
 loaderTitle.TextXAlignment = Enum.TextXAlignment.Center
 loaderTitle.TextYAlignment = Enum.TextYAlignment.Center
 
--- Loading dots animation
+-- Animated loading dots
 local dotsLabel = Instance.new("TextLabel")
 dotsLabel.Name = "DotsLabel"
 dotsLabel.Parent = loaderFrame
 dotsLabel.BackgroundTransparency = 1
-dotsLabel.Position = UDim2.new(0.5, 0, 0.6, 0)
+dotsLabel.Position = UDim2.new(0.5, 0, 0.65, 0)
 dotsLabel.AnchorPoint = Vector2.new(0.5, 0)
-dotsLabel.Size = UDim2.new(0, 100, 0, 24)
+dotsLabel.Size = UDim2.new(0, 120, 0, 24)
 dotsLabel.Font = FONT_BOLD
 dotsLabel.TextSize = 24
 dotsLabel.TextColor3 = Colors.Accent
@@ -115,18 +115,13 @@ dotsLabel.TextXAlignment = Enum.TextXAlignment.Center
 
 do
     local dots = ""
-    local count = 0
     spawn(function()
-        while loaderGui.Parent do
-            if count > 3 then
-                dots = ""
-                count = 0
-            else
-                dots = dots .. "."
-                count = count + 1
+        while loaderGui.Enabled do
+            for i = 1, 4 do
+                dots = string.rep(".", i)
+                dotsLabel.Text = "Loading" .. dots
+                wait(0.5)
             end
-            dotsLabel.Text = "Loading"..dots
-            wait(0.5)
         end
     end)
 end
@@ -135,199 +130,202 @@ end
 local mainGui = Instance.new("ScreenGui")
 mainGui.Name = "TrigonLunaMain"
 mainGui.ResetOnSpawn = false
-mainGui.DisplayOrder = BaseZIndex
+mainGui.DisplayOrder = BaseZIndex + 50
 mainGui.Parent = playerGui
-mainGui.Enabled = false  -- hidden initially, until loader completes
+mainGui.Enabled = false  -- start hidden, shown after loader
 
--- Background frame (semi-transparent white)
-local bgFrame = Instance.new("Frame")
-bgFrame.Name = "Background"
-bgFrame.AnchorPoint = Vector2.new(0, 0)
-bgFrame.Position = UDim2.new(0, 0, 0, 0)
-bgFrame.Size = UDim2.new(1, 0, 1, 0)
-bgFrame.BackgroundColor3 = Colors.Background
-bgFrame.BorderSizePixel = 0
-bgFrame.Parent = mainGui
+-- UI Background
+local backgroundFrame = Instance.new("Frame")
+backgroundFrame.Name = "Background"
+backgroundFrame.Size = UDim2.new(1, 0, 1, 0)
+backgroundFrame.Position = UDim2.new(0, 0, 0, 0)
+backgroundFrame.BackgroundColor3 = Colors.Background
+backgroundFrame.BorderSizePixel = 0
+backgroundFrame.Parent = mainGui
 
--- Main container (centered and max width 1200)
-local mainContainer = Instance.new("Frame")
-mainContainer.Name = "MainContainer"
-mainContainer.AnchorPoint = Vector2.new(0.5, 0.5)
-mainContainer.Position = UDim2.new(0.5, 0, 0.5, 0)
-mainContainer.Size = UDim2.new(0, 1100, 0, 650)
-mainContainer.BackgroundColor3 = Colors.PanelBg
-mainContainer.BorderSizePixel = 0
-mainContainer.Parent = bgFrame
-
-local mainCorner = Instance.new("UICorner", mainContainer)
-mainCorner.CornerRadius = UDim.new(0, 16)
-
--- Shadow for container
-local shadowContainer = Instance.new("Frame")
-shadowContainer.Name = "ShadowContainer"
-shadowContainer.Size = UDim2.new(1, 10, 1, 12)
-shadowContainer.Position = UDim2.new(0, 0, 0, 0)
-shadowContainer.BackgroundColor3 = Colors.ShadowColor
-shadowContainer.BorderSizePixel = 0
-shadowContainer.ZIndex = mainContainer.ZIndex - 1
-shadowContainer.Parent = mainContainer
-
-local shadowCorner = Instance.new("UICorner", shadowContainer)
-shadowCorner.CornerRadius = UDim.new(0, 16)
-shadowContainer.BackgroundTransparency = 0.85
+-- Central container frame, max width 1100px, centered
+local container = CreateRoundedFrame(backgroundFrame,
+    UDim2.new(0, 1100, 0, 680),
+    UDim2.new(0.5, 0, 0.5, 0),
+    Colors.PanelBg,
+    "MainContainer",
+    BaseZIndex + 50
+)
+container.AnchorPoint = Vector2.new(0.5, 0.5)
 
 -- Header bar
-local header = Instance.new("Frame")
-header.Name = "Header"
-header.BackgroundColor3 = Colors.Background
-header.Size = UDim2.new(1, 0, 0, 72)
-header.Position = UDim2.new(0, 0, 0, 0)
-header.BorderSizePixel = 0
-header.Parent = mainContainer
+local headerBar = Instance.new("Frame")
+headerBar.Name = "Header"
+headerBar.Size = UDim2.new(1, 0, 0, 72)
+headerBar.BackgroundColor3 = Colors.Background
+headerBar.Parent = container
 
-local headerCorner = Instance.new("UICorner", header)
-headerCorner.CornerRadius = UDim.new(0, 12)
+local headerCorner = Instance.new("UICorner", headerBar)
+headerCorner.CornerRadius = UDim.new(0, 16)
 
 local headerTitle = Instance.new("TextLabel")
-headerTitle.Name = "Title"
+headerTitle.Name = "HeaderTitle"
 headerTitle.Font = FONT_BOLD
-headerTitle.TextSize = 30
+headerTitle.TextSize = 36
 headerTitle.TextColor3 = Colors.TextPrimary
 headerTitle.BackgroundTransparency = 1
-headerTitle.Size = UDim2.new(1, 0, 1, 0)
+headerTitle.Size = UDim2.new(0.5, 0, 1, 0)
 headerTitle.Text = "Trigon Luna"
 headerTitle.TextXAlignment = Enum.TextXAlignment.Left
-headerTitle.TextYAlignment = Enum.TextYAlignment.Center
 headerTitle.Position = UDim2.new(0, 24, 0, 0)
-headerTitle.Parent = header
+headerTitle.Parent = headerBar
 
--- Navigation Buttons Container
-local navButtons = Instance.new("Frame")
-navButtons.Name = "NavButtons"
-navButtons.Size = UDim2.new(0, 420, 0, 48)
-navButtons.Position = UDim2.new(1, -460, 0, 12)
-navButtons.BackgroundTransparency = 1
-navButtons.Parent = header
+-- Navigation container for buttons (right aligned)
+local navButtonsFrame = Instance.new("Frame")
+navButtonsFrame.Name = "NavButtons"
+navButtonsFrame.Size = UDim2.new(0, 420, 0, 48)
+navButtonsFrame.Position = UDim2.new(1, -448, 0, 12)
+navButtonsFrame.BackgroundTransparency = 1
+navButtonsFrame.Parent = headerBar
 
-local UIListLayout = Instance.new("UIListLayout")
-UIListLayout.Parent = navButtons
-UIListLayout.FillDirection = Enum.FillDirection.Horizontal
-UIListLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
-UIListLayout.SortOrder = Enum.SortOrder.LayoutOrder
-UIListLayout.Padding = UDim.new(0, 12)
+local navLayout = Instance.new("UIListLayout")
+navLayout.FillDirection = Enum.FillDirection.Horizontal
+navLayout.HorizontalAlignment = Enum.HorizontalAlignment.Right
+navLayout.SortOrder = Enum.SortOrder.LayoutOrder
+navLayout.Padding = UDim.new(0, 16)
+navLayout.Parent = navButtonsFrame
 
--- Utility function: Create a nav button
-local function createNavButton(text)
+-- Function to create navigation buttons
+local function CreateNavButton(name)
     local btn = Instance.new("TextButton")
-    btn.Size = UDim2.new(0, 120, 1, 0)
+    btn.Name = name .. "Btn"
     btn.BackgroundColor3 = Colors.ButtonBg
+    btn.Size = UDim2.new(0, 110, 1, 0)
+    btn.Text = name
+    btn.Font = FONT_SEMIBOLD
+    btn.TextSize = 18
     btn.TextColor3 = Colors.TextSecondary
-    btn.Font = FONT_BOLD
-    btn.TextSize = 16
-    btn.Text = text
     btn.AutoButtonColor = false
-
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 10)
-    corner.Parent = btn
-
+    btn.BackgroundTransparency = 0
     btn.BorderSizePixel = 0
 
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 14)
+    corner.Parent = btn
+
     btn.MouseEnter:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = Colors.ButtonHoverBg, TextColor3 = Colors.Accent}):Play()
+        TweenService:Create(btn, TweenInfo.new(0.25), {BackgroundColor3 = Colors.ButtonHoverBg, TextColor3 = Colors.Accent}):Play()
     end)
     btn.MouseLeave:Connect(function()
-        TweenService:Create(btn, TweenInfo.new(0.3), {BackgroundColor3 = Colors.ButtonBg, TextColor3 = Colors.TextSecondary}):Play()
+        TweenService:Create(btn, TweenInfo.new(0.25), {BackgroundColor3 = Colors.ButtonBg, TextColor3 = Colors.TextSecondary}):Play()
     end)
-    btn.ZIndex = BaseZIndex + 5
 
+    btn.ZIndex = BaseZIndex + 100
+    btn.Parent = navButtonsFrame
     return btn
 end
 
-local execBtn = createNavButton("Execute")
-execBtn.Parent = navButtons
-local logBtn = createNavButton("Logs")
-logBtn.Parent = navButtons
-local homeBtn = createNavButton("Home")
-homeBtn.Parent = navButtons
-local settingsBtn = createNavButton("Settings")
-settingsBtn.Parent = navButtons
+-- Create navigation buttons
+local execBtn = CreateNavButton("Execute")
+local logsBtn = CreateNavButton("Logs")
+local homeBtn = CreateNavButton("Home")
+local settingsBtn = CreateNavButton("Settings")
 
--- Content panels container
-local contentContainer = Instance.new("Frame")
-contentContainer.Name = "ContentContainer"
-contentContainer.Size = UDim2.new(1, -48, 1, -96)
-contentContainer.Position = UDim2.new(0, 24, 0, 72)
-contentContainer.BackgroundTransparency = 1
-contentContainer.Parent = mainContainer
+-- Content container (below header)
+local contentFrame = Instance.new("Frame")
+contentFrame.Name = "Content"
+contentFrame.Position = UDim2.new(0, 24, 0, 72)
+contentFrame.Size = UDim2.new(1, -48, 1, -88)
+contentFrame.BackgroundTransparency = 1
+contentFrame.Parent = container
 
--- Utility: create content panel (card style)
-local function createContentPanel(name)
+-- Create a clean 'card' panel for content with consistent styling
+local function CreateCardPanel(name)
     local frame = Instance.new("Frame")
     frame.Name = name
     frame.Size = UDim2.new(1, 0, 1, 0)
     frame.BackgroundColor3 = Colors.PanelBg
-    frame.Visible = false
     frame.BorderSizePixel = 0
-    frame.Parent = contentContainer
+    frame.Visible = false
+    frame.Parent = contentFrame
 
     local corner = Instance.new("UICorner", frame)
-    corner.CornerRadius = UDim.new(0, 14)
+    corner.CornerRadius = UDim.new(0, 16)
 
     return frame
 end
 
--- Create panels for all main views
-local execPanel = createContentPanel("ExecutePanel")
-local logPanel = createContentPanel("LogPanel")
-local homePanel = createContentPanel("HomePanel")
-local settingsPanel = createContentPanel("SettingsPanel")
+local executePanel = CreateCardPanel("ExecutePanel")
+local logsPanel = CreateCardPanel("LogsPanel")
+local homePanel = CreateCardPanel("HomePanel")
+local settingsPanel = CreateCardPanel("SettingsPanel")
 
+-- Show only home panel initially
 homePanel.Visible = true
 
--- Execute Panel contents
+-- ========== Home Panel ==========
+local homeTitle = Instance.new("TextLabel")
+homeTitle.Parent = homePanel
+homeTitle.Text = "Welcome to Trigon Luna"
+homeTitle.Font = FONT_BOLD
+homeTitle.TextSize = 48
+homeTitle.TextColor3 = Colors.TextPrimary
+homeTitle.BackgroundTransparency = 1
+homeTitle.Size = UDim2.new(1, 0, 0, 64)
+homeTitle.Position = UDim2.new(0, 24, 0, 48)
+homeTitle.TextXAlignment = Enum.TextXAlignment.Left
+
+local homeSubtitle = Instance.new("TextLabel")
+homeSubtitle.Parent = homePanel
+homeSubtitle.Text = "A clean, modern Lua executor UI with elegant Luna theme styling."
+homeSubtitle.Font = FONT_SEMIBOLD
+homeSubtitle.TextSize = 18
+homeSubtitle.TextColor3 = Colors.TextSecondary
+homeSubtitle.BackgroundTransparency = 1
+homeSubtitle.Size = UDim2.new(1, -48, 0, 48)
+homeSubtitle.Position = UDim2.new(0, 24, 0, 120)
+homeSubtitle.TextWrapped = true
+homeSubtitle.TextXAlignment = Enum.TextXAlignment.Left
+
+-- ========== Execute Panel ==========
 local execTitle = Instance.new("TextLabel")
-execTitle.Parent = execPanel
+execTitle.Parent = executePanel
 execTitle.Text = "Execute Lua Code"
 execTitle.Font = FONT_BOLD
-execTitle.TextSize = 28
+execTitle.TextSize = 40
 execTitle.TextColor3 = Colors.TextPrimary
 execTitle.BackgroundTransparency = 1
-execTitle.Size = UDim2.new(1, 0, 0, 42)
-execTitle.Position = UDim2.new(0, 0, 0, 12)
+execTitle.Size = UDim2.new(1, 0, 0, 56)
+execTitle.Position = UDim2.new(0, 24, 0, 36)
+execTitle.TextXAlignment = Enum.TextXAlignment.Left
 
--- Code text box - multi-line with border
 local execTextBox = Instance.new("TextBox")
-execTextBox.Parent = execPanel
-execTextBox.Multiline = true
-execTextBox.Size = UDim2.new(1, -24, 1, -72)
-execTextBox.Position = UDim2.new(0, 12, 0, 60)
+execTextBox.Parent = executePanel
+execTextBox.Size = UDim2.new(1, -48, 1, -140)
+execTextBox.Position = UDim2.new(0, 24, 0, 100)
 execTextBox.BackgroundColor3 = Colors.Background
 execTextBox.TextColor3 = Colors.TextPrimary
-execTextBox.Font = Enum.Font.SourceSans
+execTextBox.BorderSizePixel = 1
+execTextBox.BorderColor3 = Colors.ButtonHoverBg
+execTextBox.Font = Enum.Font.Code
 execTextBox.TextSize = 16
 execTextBox.ClearTextOnFocus = false
 execTextBox.TextWrapped = true
 execTextBox.PlaceholderText = "Write or paste your Lua code here..."
-execTextBox.BorderSizePixel = 1
-execTextBox.BorderColor3 = Colors.ButtonHoverBg
 execTextBox.TextXAlignment = Enum.TextXAlignment.Left
 execTextBox.TextYAlignment = Enum.TextYAlignment.Top
-execTextBox.ZIndex = BaseZIndex + 10
+execTextBox.MultiLine = true -- Roblox Lua allows this property on TextBox for multiline input
+execTextBox.ZIndex = BaseZIndex + 200
 
 local execButton = Instance.new("TextButton")
-execButton.Parent = execPanel
+execButton.Parent = executePanel
 execButton.Text = "Run"
-execButton.Font = FONT_BOLD
-execButton.TextSize = 18
+execButton.Font = FONT_SEMIBOLD
+execButton.TextSize = 20
 execButton.BackgroundColor3 = Colors.Accent
 execButton.TextColor3 = Color3.new(1,1,1)
-execButton.Size = UDim2.new(0, 100, 0, 40)
-execButton.Position = UDim2.new(1, -112, 1, -48)
+execButton.Size = UDim2.new(0, 140, 0, 48)
+execButton.Position = UDim2.new(1, -172, 1, -72)
 execButton.AutoButtonColor = false
+execButton.ZIndex = BaseZIndex + 210
 
-local execBtnCorner = Instance.new("UICorner", execButton)
-execBtnCorner.CornerRadius = UDim.new(0, 10)
+local execButtonCorner = Instance.new("UICorner", execButton)
+execButtonCorner.CornerRadius = UDim.new(0, 12)
 
 execButton.MouseEnter:Connect(function()
     TweenService:Create(execButton, TweenInfo.new(0.25), {BackgroundColor3 = Colors.AccentLight}):Play()
@@ -337,198 +335,98 @@ execButton.MouseLeave:Connect(function()
 end)
 
 execButton.MouseButton1Click:Connect(function()
+    local code = execTextBox.Text
     local success, err = pcall(function()
-        loadstring(execTextBox.Text)()
+        local func = assert(loadstring(code))
+        return func()
     end)
     if not success then
-        warn("Execution error: "..tostring(err))
+        warn("Execution error: " .. tostring(err))
     end
 end)
 
--- Logs Panel contents
-local logTitle = Instance.new("TextLabel")
-logTitle.Parent = logPanel
-logTitle.Text = "Console Logs"
-logTitle.Font = FONT_BOLD
-logTitle.TextSize = 28
-logTitle.TextColor3 = Colors.TextPrimary
-logTitle.BackgroundTransparency = 1
-logTitle.Size = UDim2.new(1, 0, 0, 42)
-logTitle.Position = UDim2.new(0, 0, 0, 12)
 
-local logOutput = Instance.new("ScrollingFrame")
-logOutput.Parent = logPanel
-logOutput.Size = UDim2.new(1, -24, 1, -72)
-logOutput.Position = UDim2.new(0, 12, 0, 60)
-logOutput.BackgroundColor3 = Colors.Background
-logOutput.BorderSizePixel = 1
-logOutput.BorderColor3 = Colors.ButtonHoverBg
-logOutput.CanvasSize = UDim2.new(0, 0, 5, 0)
-logOutput.ScrollBarThickness = 10
-logOutput.AutomaticCanvasSize = Enum.AutomaticSize.Y
-logOutput.ZIndex = BaseZIndex + 10
+-- ========== Logs Panel ==========
+local logsTitle = Instance.new("TextLabel")
+logsTitle.Parent = logsPanel
+logsTitle.Text = "Console Logs"
+logsTitle.Font = FONT_BOLD
+logsTitle.TextSize = 40
+logsTitle.TextColor3 = Colors.TextPrimary
+logsTitle.BackgroundTransparency = 1
+logsTitle.Size = UDim2.new(1, 0, 0, 56)
+logsTitle.Position = UDim2.new(0, 24, 0, 36)
+logsTitle.TextXAlignment = Enum.TextXAlignment.Left
 
-local logText = Instance.new("TextLabel")
-logText.Parent = logOutput
-logText.Size = UDim2.new(1, -10, 0, 0)
-logText.BackgroundTransparency = 1
-logText.Font = Enum.Font.Code
-logText.TextSize = 14
-logText.TextColor3 = Colors.TextPrimary
-logText.TextXAlignment = Enum.TextXAlignment.Left
-logText.TextYAlignment = Enum.TextYAlignment.Top
-logText.TextWrapped = true
-logText.ClipsDescendants = true
-logText.RichText = true
-logText.Text = ""
-logText.Position = UDim2.new(0, 5, 0, 0)
+local logsOutputFrame = Instance.new("ScrollingFrame")
+logsOutputFrame.Parent = logsPanel
+logsOutputFrame.Size = UDim2.new(1, -48, 1, -140)
+logsOutputFrame.Position = UDim2.new(0, 24, 0, 100)
+logsOutputFrame.BackgroundColor3 = Colors.Background
+logsOutputFrame.BorderSizePixel = 1
+logsOutputFrame.BorderColor3 = Colors.ButtonHoverBg
+logsOutputFrame.ScrollBarThickness = 10
+logsOutputFrame.AutomaticCanvasSize = Enum.AutomaticSize.Y
+logsOutputFrame.ZIndex = BaseZIndex + 200
 
-logOutput.CanvasPosition = Vector2.new(0,0)
+local logTextLabel = Instance.new("TextLabel")
+logTextLabel.Parent = logsOutputFrame
+logTextLabel.Size = UDim2.new(1, -24, 0, 0)
+logTextLabel.Position = UDim2.new(0, 12, 0, 12)
+logTextLabel.BackgroundTransparency = 1
+logTextLabel.Font = Enum.Font.Code
+logTextLabel.TextSize = 14
+logTextLabel.TextColor3 = Colors.TextPrimary
+logTextLabel.TextWrapped = true
+logTextLabel.RichText = true
+logTextLabel.Text = ""
+logTextLabel.TextXAlignment = Enum.TextXAlignment.Left
+logTextLabel.TextYAlignment = Enum.TextYAlignment.Top
+logTextLabel.ClipsDescendants = true
 
-local function updateCanvasSize()
-    local sizeY = logText.TextBounds.Y + 5
-    logText.Size = UDim2.new(1, -10, 0, sizeY)
-    logOutput.CanvasSize = UDim2.new(0, 0, 0, sizeY)
-    logOutput.CanvasPosition = Vector2.new(0, sizeY)
+local function UpdateLogSize()
+    local textHeight = logTextLabel.TextBounds.Y
+    logTextLabel.Size = UDim2.new(1, -24, 0, textHeight + 24)
+    logsOutputFrame.CanvasSize = UDim2.new(0, 0, 0, textHeight + 24)
+    -- Scroll to bottom on update
+    logsOutputFrame.CanvasPosition = Vector2.new(0, math.max(0, textHeight - logsOutputFrame.AbsoluteSize.Y + 24))
 end
 
--- Connect Roblox LogService to append to logText
-local LogService = game:GetService("LogService")
 LogService.MessageOut:Connect(function(message, messageType)
-    local color
-    local prefix
+    local color = "#6B7280"
+    local prefix = "Log"
     if messageType == Enum.MessageType.MessageOutput then
-        color = "#6B7280"
         prefix = "Print"
-    elseif messageType == Enum.MessageType.MessageWarning then
-        color = "#FBBF24"
-        prefix = "Warn"
-    elseif messageType == Enum.MessageType.MessageError then
-        color = "#EF4444"
-        prefix = "Error"
-    elseif messageType == Enum.MessageType.MessageInfo then
-        color = "#3B82F6"
-        prefix = "Info"
-    else
         color = "#6B7280"
-        prefix = "Log"
+    elseif messageType == Enum.MessageType.MessageWarning then
+        prefix = "Warn"
+        color = "#FBBF24"
+    elseif messageType == Enum.MessageType.MessageError then
+        prefix = "Error"
+        color = "#EF4444"
+    elseif messageType == Enum.MessageType.MessageInfo then
+        prefix = "Info"
+        color = "#3B82F6"
     end
-    -- Format message as rich text with timestamp
     local time = os.date("%X")
-    logText.Text = logText.Text .. string.format('<font color="%s">[%s][%s]</font> %s\n', color, time, prefix, message)
-    updateCanvasSize()
+    logTextLabel.Text = logTextLabel.Text .. string.format('<font color="%s">[%s][%s]</font> %s\n', color, time, prefix, message)
+    UpdateLogSize()
 end)
 
--- Home Panel contents
-local homeTitle = Instance.new("TextLabel")
-homeTitle.Parent = homePanel
-homeTitle.Text = "Welcome to Trigon Luna"
-homeTitle.Font = FONT_BOLD
-homeTitle.TextSize = 36
-homeTitle.TextColor3 = Colors.TextPrimary
-homeTitle.BackgroundTransparency = 1
-homeTitle.Size = UDim2.new(1, 0, 0, 54)
-homeTitle.Position = UDim2.new(0, 0, 0, 24)
-
-local homeSubtitle = Instance.new("TextLabel")
-homeSubtitle.Parent = homePanel
-homeSubtitle.Text = "A sleek, modern Lua executor interface for Roblox with Luna Theme."
-homeSubtitle.Font = FONT_REGULAR
-homeSubtitle.TextSize = 18
-homeSubtitle.TextColor3 = Colors.TextSecondary
-homeSubtitle.BackgroundTransparency = 1
-homeSubtitle.Size = UDim2.new(1, -48, 0, 48)
-homeSubtitle.Position = UDim2.new(0, 24, 0, 84)
-homeSubtitle.TextWrapped = true
-
--- Settings Panel contents
+-- ========== Settings Panel ==========
 local settingsTitle = Instance.new("TextLabel")
 settingsTitle.Parent = settingsPanel
 settingsTitle.Text = "Settings"
 settingsTitle.Font = FONT_BOLD
-settingsTitle.TextSize = 36
+settingsTitle.TextSize = 48
 settingsTitle.TextColor3 = Colors.TextPrimary
 settingsTitle.BackgroundTransparency = 1
-settingsTitle.Size = UDim2.new(1, 0, 0, 54)
-settingsTitle.Position = UDim2.new(0, 0, 0, 24)
+settingsTitle.Size = UDim2.new(1, 0, 0, 56)
+settingsTitle.Position = UDim2.new(0, 24, 0, 36)
+settingsTitle.TextXAlignment = Enum.TextXAlignment.Left
 
-local function createToggleSetting(parent, name, positionY, propertyName)
-    local container = Instance.new("Frame")
-    container.Parent = parent
-    container.BackgroundColor3 = Colors.PanelBg
-    container.Position = UDim2.new(0, 24, 0, positionY)
-    container.Size = UDim2.new(1, -48, 0, 48)
-    container.BorderSizePixel = 0
-    container.ZIndex = BaseZIndex + 10
-
-    local corner = Instance.new("UICorner")
-    corner.CornerRadius = UDim.new(0, 10)
-    corner.Parent = container
-
-    local label = Instance.new("TextLabel")
-    label.Parent = container
-    label.Text = name
-    label.Font = FONT_BOLD
-    label.TextSize = 18
-    label.TextColor3 = Colors.TextPrimary
-    label.BackgroundTransparency = 1
-    label.Position = UDim2.new(0, 12, 0, 0)
-    label.Size = UDim2.new(0.7, 0, 1, 0)
-    label.TextXAlignment = Enum.TextXAlignment.Left
-    label.TextYAlignment = Enum.TextYAlignment.Center
-
-    local toggleBtn = Instance.new("TextButton")
-    toggleBtn.Parent = container
-    toggleBtn.Size = UDim2.new(0, 60, 0, 26)
-    toggleBtn.Position = UDim2.new(1, -72, 0.5, -13)
-    toggleBtn.BackgroundColor3 = Colors.ButtonBg
-    toggleBtn.Text = ""
-    toggleBtn.AutoButtonColor = false
-    toggleBtn.BorderSizePixel = 0
-
-    local toggleCorner = Instance.new("UICorner")
-    toggleCorner.CornerRadius = UDim.new(1, 0)
-    toggleCorner.Parent = toggleBtn
-
-    -- Inner circle
-    local circle = Instance.new("Frame")
-    circle.Name = "ToggleCircle"
-    circle.Parent = toggleBtn
-    circle.Size = UDim2.new(0, 22, 0, 22)
-    circle.Position = UDim2.new(0, 2, 0.5, -11)
-    circle.BackgroundColor3 = Colors.ButtonHoverBg
-    circle.BorderSizePixel = 0
-
-    local circleCorner = Instance.new("UICorner")
-    circleCorner.CornerRadius = UDim.new(1, 0)
-    circleCorner.Parent = circle
-
-    -- Update function for toggle state
-    local function updateToggle(state)
-        if state then
-            toggleBtn.BackgroundColor3 = Colors.Accent
-            circle.Position = UDim2.new(1, -24, 0.5, -11)
-        else
-            toggleBtn.BackgroundColor3 = Colors.ButtonBg
-            circle.Position = UDim2.new(0, 2, 0.5, -11)
-        end
-    end
-
-    -- Initial update
-    updateToggle(Settings[propertyName] == true)
-
-    -- Toggle behavior on click
-    toggleBtn.MouseButton1Click:Connect(function()
-        Settings[propertyName] = not Settings[propertyName]
-        updateToggle(Settings[propertyName])
-        pcall(saveSettings)  -- Save settings function (assumed existing)
-    end)
-
-    return container
-end
-
--- Assume Settings table exists and saveSettings function from original code
-Settings = Settings or {
+-- Settings data and saving stub
+local Settings = {
     autoexec = false,
     autohideui = false,
     logPrint = true,
@@ -537,51 +435,109 @@ Settings = Settings or {
     logInfo = true,
 }
 
-local toggleAutoexec = createToggleSetting(settingsPanel, "Enable Auto Execute", 96, "autoexec")
-local toggleAutohideUI = createToggleSetting(settingsPanel, "Hide UI on Launch", 160, "autohideui")
-local toggleLogPrint = createToggleSetting(settingsPanel, "Log Print Messages", 224, "logPrint")
-local toggleLogWarn = createToggleSetting(settingsPanel, "Log Warnings", 288, "logWarn")
-local toggleLogError = createToggleSetting(settingsPanel, "Log Errors", 352, "logError")
-local toggleLogInfo = createToggleSetting(settingsPanel, "Log Info Messages", 416, "logInfo")
-
--- Function to switch content panels
-local function switchPanel(showPanel)
-    execPanel.Visible = false
-    logPanel.Visible = false
-    homePanel.Visible = false
-    settingsPanel.Visible = false
-    showPanel.Visible = true
+local function SaveSettings()
+    -- Save logic here: writefile or datastore; stub logs for now
+    print("Settings saved:", HttpService:JSONEncode(Settings))
 end
 
--- Connect nav button clicks
-execBtn.MouseButton1Click:Connect(function() switchPanel(execPanel) end)
-logBtn.MouseButton1Click:Connect(function() switchPanel(logPanel) end)
-homeBtn.MouseButton1Click:Connect(function() switchPanel(homePanel) end)
-settingsBtn.MouseButton1Click:Connect(function() switchPanel(settingsPanel) end)
+-- Create a toggle setting UI item
+local function CreateToggleSetting(parent, label, posY, key)
+    local frame = Instance.new("Frame")
+    frame.Parent = parent
+    frame.BackgroundColor3 = Colors.PanelBg
+    frame.Size = UDim2.new(1, -48, 0, 56)
+    frame.Position = UDim2.new(0, 24, 0, posY)
 
--- Show home initially
-switchPanel(homePanel)
+    local corner = Instance.new("UICorner")
+    corner.CornerRadius = UDim.new(0, 14)
+    corner.Parent = frame
 
--- Loader sequence: show loader for ~2.5 seconds then show UI
+    local textLabel = Instance.new("TextLabel")
+    textLabel.Parent = frame
+    textLabel.Text = label
+    textLabel.Font = FONT_SEMIBOLD
+    textLabel.TextSize = 20
+    textLabel.TextColor3 = Colors.TextPrimary
+    textLabel.BackgroundTransparency = 1
+    textLabel.Position = UDim2.new(0, 20, 0, 0)
+    textLabel.Size = UDim2.new(0.7, 0, 1, 0)
+    textLabel.TextXAlignment = Enum.TextXAlignment.Left
+    textLabel.TextYAlignment = Enum.TextYAlignment.Center
+
+    local toggleButton = Instance.new("ImageButton")
+    toggleButton.Parent = frame
+    toggleButton.Size = UDim2.new(0, 52, 0, 28)
+    toggleButton.Position = UDim2.new(1, -76, 0.5, -14)
+    toggleButton.BackgroundColor3 = Colors.ButtonBg
+    toggleButton.BorderSizePixel = 0
+    toggleButton.AutoButtonColor = false
+    toggleButton.ZIndex = BaseZIndex + 300
+    toggleButton.Name = "Toggle"
+
+    local toggleCorner = Instance.new("UICorner", toggleButton)
+    toggleCorner.CornerRadius = UDim.new(1, 0)
+
+    local circle = Instance.new("Frame")
+    circle.Name = "Circle"
+    circle.Parent = toggleButton
+    circle.Size = UDim2.new(0, 22, 0, 22)
+    circle.Position = UDim2.new(0, 2, 0.5, -11)
+    circle.BackgroundColor3 = Colors.ButtonHoverBg
+    circle.BorderSizePixel = 0
+
+    local circleCorner = Instance.new("UICorner", circle)
+    circleCorner.CornerRadius = UDim.new(1, 0)
+
+    local function updateToggleUI(state)
+        if state then
+            toggleButton.BackgroundColor3 = Colors.Accent
+            circle.Position = UDim2.new(1, -24, 0.5, -11)
+        else
+            toggleButton.BackgroundColor3 = Colors.ButtonBg
+            circle.Position = UDim2.new(0, 2, 0.5, -11)
+        end
+    end
+
+    updateToggleUI(Settings[key])
+
+    toggleButton.MouseButton1Click:Connect(function()
+        Settings[key] = not Settings[key]
+        updateToggleUI(Settings[key])
+        SaveSettings()
+    end)
+
+    return frame
+end
+
+local toggleAutoexec = CreateToggleSetting(settingsPanel, "Enable Auto Execute", 96, "autoexec")
+local toggleAutohide = CreateToggleSetting(settingsPanel, "Hide UI on Launch", 160, "autohideui")
+local toggleLogPrint = CreateToggleSetting(settingsPanel, "Log Print Messages", 224, "logPrint")
+local toggleLogWarn = CreateToggleSetting(settingsPanel, "Log Warnings", 288, "logWarn")
+local toggleLogError = CreateToggleSetting(settingsPanel, "Log Errors", 352, "logError")
+local toggleLogInfo = CreateToggleSetting(settingsPanel, "Log Info Messages", 416, "logInfo")
+
+-- Navigation button connections to switch panels
+local function SetPanelVisible(panel)
+    executePanel.Visible = false
+    logsPanel.Visible = false
+    homePanel.Visible = false
+    settingsPanel.Visible = false
+    panel.Visible = true
+end
+
+execBtn.MouseButton1Click:Connect(function() SetPanelVisible(executePanel) end)
+logsBtn.MouseButton1Click:Connect(function() SetPanelVisible(logsPanel) end)
+homeBtn.MouseButton1Click:Connect(function() SetPanelVisible(homePanel) end)
+settingsBtn.MouseButton1Click:Connect(function() SetPanelVisible(settingsPanel) end)
+
+-- Show home panel by default
+SetPanelVisible(homePanel)
+
+-- Loader animation control: show loader for 2.7 seconds then switch to main UI
 task.spawn(function()
-    wait(2.5)
+    wait(2.7)
     loaderGui.Enabled = false
     mainGui.Enabled = true
 end)
 
--- SaveSettings function (stub for completeness)
-function saveSettings()
-    -- Try saving Settings with Roblox file system or custom persistence
-    -- Here we simply print settings to console for stub
-    print("Settings saved:", HttpService:JSONEncode(Settings))
-end
-
--- Initialize toggle UI with current Settings
-local function initializeSettingsUI()
-    -- Just call the click handler with current values to update UI toggle states
-    toggleAutoexec.MouseButton1Click:Wait()  -- dummy wait to let connections set up
-    -- Toggles already initialized on toggles creation
-end
-task.spawn(initializeSettingsUI)
-
-print("-----] Trigon Luna UI Loaded [-----]")
+print("-----] Trigon Luna UI Loaded and Ready [-----]")

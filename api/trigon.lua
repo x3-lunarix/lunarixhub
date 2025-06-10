@@ -1,16 +1,28 @@
--- 🌸 Lunix Loader with Sakura + Krnl UI + Key System (Final Refined Version)
+-- 🌸 Lunix Loader with Sakura + Krnl UI + Key System (Final Refined & Nil-Safe Version)
 
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
-local HttpService = game:GetService("HttpService")
+local HttpService = game:GetService("HttpService") -- HttpService is standard, but some environments might restrict it.
 local Lighting = game:GetService("Lighting")
 local player = Players.LocalPlayer
 
+-- Function to safely get gethui() or PlayerGui
+local function getProperGuiParent()
+    local success, coreGui = pcall(function() return gethui() end)
+    if success and coreGui then
+        return coreGui
+    else
+        warn("gethui() not available, defaulting to PlayerGui.")
+        return player.PlayerGui
+    end
+end
+
+local guiParent = getProperGuiParent()
+
 -- Attempt to destroy any existing loader UI safely
 pcall(function()
-    local existingGui = gethui()
-    if existingGui and existingGui:FindFirstChild("LunixLoader") then
-        existingGui.LunixLoader:Destroy()
+    if guiParent and guiParent:FindFirstChild("LunixLoader") then
+        guiParent.LunixLoader:Destroy()
     end
 end)
 
@@ -26,7 +38,7 @@ gui.Name = "LunixLoader"
 gui.IgnoreGuiInset = true
 gui.ResetOnSpawn = false
 gui.ZIndexBehavior = Enum.ZIndexBehavior.Global
-gui.Parent = gethui() -- Ensure the GUI is parented to CoreGui or PlayerGui
+gui.Parent = guiParent -- Use the safely determined parent
 
 local bg = Instance.new("Frame")
 bg.BackgroundColor3 = Color3.fromRGB(15, 15, 30)
@@ -46,7 +58,7 @@ logo.Parent = bg
 
 -- --- Sakura Animation ---
 task.spawn(function()
-    while gui and gui.Parent do
+    while gui and gui.Parent do -- Keep running as long as the GUI exists
         local flower = Instance.new("TextLabel")
         flower.Text = "🌸"
         flower.Font = Enum.Font.Gotham
@@ -79,7 +91,7 @@ end)
 
 -- --- Logo Pulse Animation ---
 task.spawn(function()
-    while gui and gui.Parent do
+    while gui and gui.Parent and logo and logo.Parent do -- Keep running as long as GUI and logo exist
         -- Enlarge and lighten color
         TweenService:Create(logo, TweenInfo.new(2, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut), {
             Size = UDim2.new(0, 210, 0, 210),
@@ -100,7 +112,11 @@ local keyFile = "lunix_key_data.txt" -- Local file to save the key
 local savedKey = ""
 
 pcall(function() -- Safely attempt to read the saved key
-    savedKey = readfile and readfile(keyFile) or ""
+    if type(readfile) == "function" then -- Check if readfile exists
+        savedKey = readfile(keyFile)
+    else
+        warn("readfile() not available, key persistence disabled.")
+    end
 end)
 
 ---
@@ -108,8 +124,10 @@ end)
 ---
 task.delay(4.5, function() -- Delay before transitioning to key system UI
     -- Clean up initial elements smoothly
-    TweenService:Create(logo, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
-    task.delay(0.5, function() logo:Destroy() end) -- Destroy after fade
+    if logo and logo.Parent then -- Check if logo still exists
+        TweenService:Create(logo, TweenInfo.new(0.5), {ImageTransparency = 1}):Play()
+        task.delay(0.5, function() logo:Destroy() end) -- Destroy after fade
+    end
 
     for _, child in pairs(gui:GetChildren()) do
         if child:IsA("TextLabel") and child.Text == "🌸" then
@@ -194,10 +212,16 @@ task.delay(4.5, function() -- Delay before transitioning to key system UI
 
     -- Get Key Button
     createStylishButton("Get Key", Color3.fromRGB(80, 80, 120), 0.1, function()
-        if setclipboard then setclipboard("https://lunixhub.xyz/getkey") end
+        if type(setclipboard) == "function" then -- Check if setclipboard exists
+            setclipboard("https://lunixhub.xyz/getkey")
+        else
+            warn("setclipboard() not available.")
+        end
         -- Attempt to make an HTTP request if `syn` is available (for certain exploit contexts)
-        if syn and syn.request then
-            syn.request({Url="https://lunixhub.xyz/getkey", Method="GET"})
+        if _G.syn and type(_G.syn.request) == "function" then -- Check if syn.request exists
+            _G.syn.request({Url="https://lunixhub.xyz/getkey", Method="GET"})
+        else
+            warn("syn.request() not available.")
         end
         -- Provide immediate feedback to the user
         box.Text = "Link copied!"
@@ -212,7 +236,11 @@ task.delay(4.5, function() -- Delay before transitioning to key system UI
     createStylishButton("Verify Key", Color3.fromRGB(150, 90, 255), 0.52, function()
         -- IMPORTANT: Replace "LUNIX-2025-ACCESS-KEY" with your actual valid key
         if box.Text == "LUNIX-2025-ACCESS-KEY" then
-            writefile(keyFile, box.Text) -- Save key if valid
+            if type(writefile) == "function" then -- Check if writefile exists
+                writefile(keyFile, box.Text) -- Save key if valid
+            else
+                warn("writefile() not available, key will not be saved.")
+            end
             -- Success animation: fade and shrink the UI
             TweenService:Create(bg, TweenInfo.new(0.6), {
                 BackgroundTransparency = 1,
@@ -222,8 +250,10 @@ task.delay(4.5, function() -- Delay before transitioning to key system UI
             task.wait(0.7) -- Wait for animation to finish
             gui:Destroy() -- Clean up GUI
             blur:Destroy() -- Clean up blur effect
-            if _G and loadTrigonMainUI then
-                pcall(loadTrgonMainUI) -- Attempt to load main UI if available
+            if _G and type(_G.loadTrigonMainUI) == "function" then -- Check if loadTrigonMainUI exists
+                pcall(_G.loadTrigonMainUI) -- Attempt to load main UI if available
+            else
+                warn("loadTrigonMainUI() not available or not a function.")
             end
         else
             -- Invalid Key feedback

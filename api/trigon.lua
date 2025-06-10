@@ -119,9 +119,6 @@ pcall(function() -- Safely attempt to read the saved key
     end
 end)
 
----
-## Lunix Key System UI Transition
----
 task.delay(4.5, function() -- Delay before transitioning to key system UI
     -- Clean up initial elements smoothly
     if logo and logo.Parent then -- Check if logo still exists

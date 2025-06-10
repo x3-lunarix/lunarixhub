@@ -1,5 +1,5 @@
 -- 🌸 Lunix Loader with Sakura + Krnl UI + Key System (Final Refined & Nil-Safe Version)
-
+wait(10)
 local TweenService = game:GetService("TweenService")
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService") -- HttpService is standard, but some environments might restrict it.

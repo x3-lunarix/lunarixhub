@@ -791,7 +791,7 @@ function CheckLevel()
             Ms = "Sun-kissed Warrior"
             NameQuest = "TikiQuest2"
             QuestLv = 1
-            NameMon = "Sun-kissed Warrior"
+            NameMon = "Sun-"
             CFrameQ = CFrame.new(-16541.0215, 54.770813, 1051.46118, 0.0410757065, -0, -0.999156058, 0, 1, -0, 0.999156058, 0, 0.0410757065)
             CFrameMon = CFrame.new(-16413.5078, 54.6350479, 1054.43555, -0.999391913, 0, -0.034868788, 0, 1, 0, 0.034868788, 0, -0.999391913)
         elseif Lv == 2525 or Lv <= 2549 or Env.SelectMonster == "Isle Champion [Lv. 2525]" then
@@ -808,7 +808,7 @@ function CheckLevel()
             NameMon = "Serpent Hunter"
             CFrameQ = CFrame.new(-16665.1914, 104.596405, 1579.69434, 0.951068401, -0, -0.308980465, 0, 1, -0, 0.308980465, 0, 0.951068401)
             CFrameMon = CFrame.new(-16654.7754, 105.286232, 1579.67444, 0.999096751, 4.45934489e-08, 0.0424928814, -4.38822667e-08, 1, -1.76692847e-08, -0.0424928814, 1.57886415e-08, 0.999096751)
-        elseif Lv >= 2575 or Lv <= 2599 or Env.SelectMonster == "Skull Slayer [Lv. 2575]" then
+                elseif Lv >= 2575 or Lv <= 2599 or Env.SelectMonster == "Skull Slayer [Lv. 2575]" then
             Ms = "Skull Slayer"
             NameQuest = "TikiQuest3"
             QuestLv = 2
@@ -822,7 +822,7 @@ function CheckLevel()
             NameMon = "Reef Bandit"
             CFrameQ = CFrame.new(10778.8496, -2087.71338, 9260.76758, 0.254936904, -4.35733618e-08, -0.966957688, -2.55894843e-08, 1, -5.18089536e-08, 0.966957688, 3.79519633e-08, 0.254936904)
             CFrameMon = CFrame.new(11052.75, -2084.71289, 9152.53711, -0.773495615, -7.13662907e-10, 0.633801639, -8.58463578e-10, 1, 7.83291002e-11, -0.633801639, -4.835084e-10, -0.773495615)
-        elseif Lv >= 2625 or Lv <= 2649 or Env.SelectMonster == "Coral Pirate [Lv. 2625]" then
+        elseif Lv >= 2625 or Lv <= 2649 or Env.SelectMonster == "Coral Pirates [Lv. 2625]" then
             Ms = "Coral Pirate"
             NameQuest = "SubmergedQuest1"
             QuestLv = 2
@@ -1391,6 +1391,133 @@ spawn(function()
         end
     end
 end)
+Env.BringMonster = false
+Tabs.Settings:Toggle({
+    Title = 'Bring Monster (Buggy dont open)',
+    Desc = 'Brings the monster to your location.',
+    Image = 'toggle-right',
+    Value = false,
+    Callback = function(v)
+        Env.BringMonster = v
+    end,
+})
+function BringMonster(TargetName, TargetCFrame)
+    local sethiddenproperty = sethiddenproperty or (function(...) return ... end)
+    for i,v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
+        if v.Name == TargetName then
+            if v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
+                if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < tonumber(bringfrec) then
+                    v.HumanoidRootPart.CFrame = TargetCFrame
+                    v.HumanoidRootPart.CanCollide = false
+                    v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
+                    v.HumanoidRootPart.Transparency = 1
+                    v.Humanoid:ChangeState(11)
+                    v.Humanoid:ChangeState(14)
+                    if v.Humanoid:FindFirstChild("Animator") then
+                        v.Humanoid.Animator:Destroy()
+                    end
+                    --sethiddenproperty(game.Players.LocalPlayer, "SimulationRadius", math.huge)
+                end
+            end
+        end
+    end
+    pcall(sethiddenproperty, game.Players.LocalPlayer, "SimulationRadius", math.huge)
+end
+
+bringfrec = 25
+spawn(function()
+    while task.wait() do
+        if Env.BringMonster and Env.AutoFarm then
+            pcall(function()
+                BringMonster(Level_Farm_Name, Level_Farm_CFrame)
+            end)
+
+        elseif Env.BringMonster and Farm_Bone then
+            pcall(function()
+                BringMonster(Bone_Farm_Name, Bone_Farm_CFrame)
+            end)
+
+        elseif Env.BringMonster and Farm_Ectoplasm then
+            pcall(function()
+                BringMonster(Ecto_Farm_Name, Ecto_Farm_CFrame)
+            end)
+
+        elseif Env.BringMonster and Nearest_Farm then
+            pcall(function()
+                BringMonster(Nearest_Farm_Name, Nearest_Farm_CFrame)
+            end)
+
+        elseif Env.BringMonster and (SelectMonster_Quest_Farm or SelectMonster_NoQuest_Farm) then
+            pcall(function()
+                BringMonster(SelectMonster_Farm_Name, SelectMonster_Farm_CFrame)
+            end)
+
+        elseif Env.BringMonster and Auto_Farm_Material then
+            pcall(function()
+                BringMonster(Material_Farm_Name, Material_Farm_CFrame)
+            end)
+
+        elseif Env.BringMonster and (GunMastery_Farm or DevilMastery_Farm) then
+            pcall(function()
+                BringMonster(Mastery_Farm_Name, Mastery_Farm_CFrame)
+            end)
+
+        elseif Env.BringMonster and AutoRengoku then
+            pcall(function()
+                BringMonster(Rengoku_Farm_Name, Rengoku_Farm_CFrame)
+            end)
+
+        elseif Env.BringMonster and AutoCakePrince then
+            pcall(function()
+                BringMonster(CakePrince_Farm_Name, CakePrince_Farm_CFrame)
+            end)
+
+        elseif Env.BringMonster and _G.AutoDoughKing then
+            pcall(function()
+                BringMonster(DoughKing_Farm_Name, DoughKing_Farm_CFrame)
+            end)
+
+        elseif Env.BringMonster and AutoCitizen then
+            pcall(function()
+                BringMonster(Citizen_Farm_Name, Citizen_Farm_CFrame)
+            end)
+
+        elseif Env.BringMonster and AutoEvoRace then
+            pcall(function()
+                BringMonster(EvoV2_Farm_Name, EvoV2_Farm_CFrame)
+            end)
+
+        elseif Env.BringMonster and AutoBartilo then
+            pcall(function()
+                BringMonster(Bartilo_Farm_Name, Bartilo_Farm_CFrame)
+            end)
+
+        elseif Env.BringMonster and AutoSoulGuitar then
+            pcall(function()
+                BringMonster(SoulGuitar_Farm_Name, SoulGuitar_Farm_CFrame)
+            end)
+
+        elseif Env.BringMonster and AutoMusketeer then
+            pcall(function()
+                BringMonster(Musketere_Farm_Name, Musketere_Farm_CFrame)
+            end)
+            
+        elseif Env.BringMonster and AutoTrain then
+            pcall(function()
+                BringMonster(Ancient_Farm_Name, Ancient_Farm_CFrame)
+            end)
+
+        elseif Env.BringMonster and AutoPirateCastle then
+            pcall(function()
+                BringMonster(PirateCastle_Name, PirateCastle_CFrame)
+            end)
+        elseif Env.BringMonster and BlazeEmberFarm then
+            pcall(function()
+                BringMonster(BlazeEmber_Farm_Name, BlazeEmber_Farm_CFrame)
+            end)
+        end
+    end
+end)
 
 Env.fastattack = true
 Tabs.Settings:Toggle({
@@ -1445,7 +1572,7 @@ spawn(function()
                     game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
                         Tween(CFrameQ)
                     if (CFrameQ.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 5 then
-                        wait(1)
+                        task.wait(1)
                         game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", NameQuest, QuestLv)
                     end
 
@@ -1463,7 +1590,7 @@ spawn(function()
                                         Level_Farm_Name = v.Name
                                         Level_Farm_CFrame = v.HumanoidRootPart.CFrame
                                         AutoClick()
-                                    until not LevelFarmQuest or not v.Parent or v.Humanoid.Health <= 0 or not game:GetService("Workspace").Enemies:FindFirstChild(v.Name) or game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible == false
+                                    until not Env.AutoFarm or not v.Parent or v.Humanoid.Health <= 0 or not game:GetService("Workspace").Enemies:FindFirstChild(v.Name) or game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible == false
                                 end
                             end
                         end
@@ -1622,7 +1749,11 @@ spawn(function()
                                     end
                                 end
                             else
-                                Tween(CFrame.new(1057.92761, 137.614319, 1242.08069))
+                                if ByPassTP then
+                                    BTP(CFrame.new(1057.92761, 137.614319, 1242.08069))
+                                else
+                                    Tween(CFrame.new(1057.92761, 137.614319, 1242.08069))
+                                end
                             end
                         else
                             game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest","BartiloQuest",1)
@@ -1642,11 +1773,19 @@ spawn(function()
                                 end
                             end
                         else
-                            Tween(CFrame.new(2099.88159, 448.931, 648.997375))
+                            if ByPassTP then
+                                BTP(CFrame.new(2099.88159, 448.931, 648.997375))
+                            else
+                                Tween(CFrame.new(2099.88159, 448.931, 648.997375))
+                            end
                         end
                     elseif game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("BartiloQuestProgress","Bartilo") == 2 then
                         if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - CFrameThird.Position).Magnitude > 1500 then
-                            Tween(CFrame.new(-1836.1412353515625, 10.458294868469238, 1692.491943359375))
+                            if ByPassTP then
+                                BTP(CFrame.new(-1836.1412353515625, 10.458294868469238, 1692.491943359375))
+                            else
+                                Tween(CFrame.new(-1836.1412353515625, 10.458294868469238, 1692.491943359375))
+                            end
                         else
                             wait(1)
                             game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = CFrame.new(-1850.49329, 13.1789551, 1750.89685)
@@ -1776,517 +1915,10 @@ spawn(function()
         end
     end
 end)
-
-Tabs.Mains:Toggle({
-    Title = 'Auto Farm Nearest',
-    Desc = 'Automatically farms the nearest monster.',
-    Image = 'toggle-right',
-    Value = false,
-    Callback = function(v)
-        Env.AutoFarmNearestMonster = v
-    end,
-})
-
-spawn(function()
-    while task.wait() do
-        if Env.AutoFarmNearestMonster then
-            pcall(function()
-                for i,v in pairs (game.Workspace.Enemies:GetChildren()) do
-                    if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
-                        if v.Name then
-                            if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude <= 1000 then
-                                repeat game:GetService("RunService").Heartbeat:wait()
-                                    EquipTool(SelectWeapon)
-                                    Tween(v.HumanoidRootPart.CFrame * Farm_Mode)
-                                    v.HumanoidRootPart.CanCollide = false
-                                    v.HumanoidRootPart.Size = Vector3.new(60,60,60)
-                                    v.HumanoidRootPart.Transparency = 1
-                                    Nearest_Farm_Name = v.Name
-                                    Nearest_Farm_CFrame = v.HumanoidRootPart.CFrame
-                                    AutoClick()
-                                until not Env.AutoFarmNearestMonster or not v.Parent or v.Humanoid.Health <= 0 or not game.Workspace.Enemies:FindFirstChild(v.Name)
-                            end
-                        end
-                    end
-                end
-            end)
-        end
-    end
-end)
-
 Tabs.Mains:Label({
 		Title = 'Auto Mastery Soon...'
 	})
 Tabs.Mains:Section({Title = ' [ Boss Farm ] '})
-
-local BossNameStorage = {
-    "The Gorrila King", "Bobby", "The Saw", "Yeti", "Mob Leader", "Vice Admiral", "Saber Expert", "Warden", "Chief Warden", "Swan", "Magma Admiral", "Fishman Lord", "Wysper", "Thunder God", "Cyborg", "Ice Admiral", "Greybeard",
-    "Diamond", "Jeremy", "Fajita", "Don Swan", "Smoke Admiral", "Awakened Ice Admiral", "Tide Keeper", "Darkbeard", "Cursed Captain", "Order",
-    "Stone", "Hydra Leader", "Kilo Admiral", "Captain Elephant", "Beautiful Pirate", "Cake Queen", "Longma", "Soul Reaper", "rip_indra True Form","Tyrant of the Skies"
-}
-
-local BossList = {}
-for i,v in pairs(game.ReplicatedStorage:GetChildren()) do
-    if table.find(BossNameStorage, v.Name) then
-        table.insert(BossList, v.Name)
-    end
-end
-
-Tabs.Mains:Dropdown({
-    Title = 'Select Boss Mode',
-    Desc = 'Select Boss Mode',
-    Image = 'chevron-down',
-    List = {"Please Select", "Quest", "No Quest"},
-    Value = "Please Select",
-    Callback = function(v)
-        Env.SelectBossMode = v
-        if Env.SelectBossMode == "Quest" then
-            Env.QuestBossFarm = true
-            Env.NoQuestBossFarm = false
-        elseif Env.SelectBossMode == "No Quest" then
-            Env.NoQuestBossFarm = true
-            Env.QuestBossFarm = false
-        else
-            Env.QuestBossFarm = false
-            Env.NoQuestBossFarm = false
-        end
-    end,
-})
-
-local BossDrop = Tabs.Mains:Dropdown({
-    Title = 'Select Boss',
-    Desc = 'Select Boss',
-    Image = 'chevron-down',
-    List = BossList,
-    Value = "Please Select",
-    Callback = function(v)
-        Env.SelectBoss = v
-    end,
-})
-
-Tabs.Mains:Button({
-    Title = 'Refresh Boss List',
-    Desc = 'Refresh Boss List',
-    Image = 'refresh-cw',
-    Callback = function()
-        BossDrop:Clear()
-        BossList = {}
-        for i, v in pairs(game.ReplicatedStorage:GetChildren()) do
-            if table.find(BossNameStorage, v.Name) then
-                table.insert(BossList, v.Name)
-                BossDrop:Add(v.Name)
-            end
-        end
-    end,
-})
-
-Tabs.Mains:Toggle({
-    Title = 'Auto Farm Boss',
-    Desc = 'Automatically farms the selected boss.',
-    Image = 'toggle-right',
-    Value = false,
-    Callback = function(v)
-        Env.AutoFarmBoss = v
-    end,
-})
-
-spawn(function()
-    while task.wait() do
-        if Env.AutoFarmBoss then
-            pcall(function()
-                CheckBossQuest(Env.SelectBoss)
-                if Env.QuestBossFarm then
-                    if not string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, NameBoss) or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == false then
-                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
-                        Tween(CFrameQBoss)
-                        if (CFrameQBoss.Position - game:GetService("Players").LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 5 then
-                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", NameQuestBoss, QuestLvBoss)
-                        end
-                    elseif string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, NameBoss) or game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == true then
-                        if game:GetService("Workspace").Enemies:FindFirstChild(Env.SelectBoss) then
-                            for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                                if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
-                                    if v.Name == Env.SelectBoss then
-                                        repeat game:GetService("RunService").Heartbeat:wait()
-                                            EquipTool(SelectWeapon)
-                                            Tween(v.HumanoidRootPart.CFrame * Farm_Mode)
-                                            v.HumanoidRootPart.CanCollide = false
-                                            v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                            v.HumanoidRootPart.Transparency = 1
-                                            AutoClick()
-                                        until not Env.AutoFarmBoss or not v.Parent or v.Humanoid.Health <= 0 or not game:GetService("Workspace").Enemies:FindFirstChild(v.Name) or game.Players.LocalPlayer.PlayerGui.Main.Quest.Visible == false
-                                    end
-                                end
-                            end
-                        else
-                            Tween(CFrameBoss)
-                        end
-                    end
-                elseif Env.NoQuestBossFarm then
-                    Tween(CFrameBoss)
-                    for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
-                            if v.Name == Env.SelectBoss then
-                                repeat game:GetService("RunService").Heartbeat:wait()
-                                    EquipTool(SelectWeapon)
-                                    Tween(v.HumanoidRootPart.CFrame * Farm_Mode)
-                                    v.HumanoidRootPart.CanCollide = false
-                                    v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                    v.HumanoidRootPart.Transparency = 1
-                                    AutoClick()
-                                until not Env.AutoFarmBoss or not v.Parent or v.Humanoid.Health <= 0 or not game:GetService("Workspace").Enemies:FindFirstChild(v.Name)
-                            end
-                        end
-                    end
-                end
-            end)
-        end
-    end
-end)
-
-Tabs.Mains:Toggle({
-    Title = 'Auto Farm All Boss',
-    Desc = 'Automatically farms all bosses.',
-    Image = 'toggle-right',
-    Value = false,
-    Callback = function(v)
-        Env.AutoAllBoss = v
-    end,
-})
-spawn(function()
-    while task.wait() do
-        if Env.AutoAllBoss and (Env.QuestBossFarm or Env.NoQuestBossFarm) then
-            for _, bossName in pairs(BossList) do
-                pcall(function()
-                    local boss = game:GetService("Workspace").Enemies:FindFirstChild(bossName)
-                    if boss then
-                        for _, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                            if v.Name == bossName and v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
-                                -- ถ้าเลือก Quest Mode
-                                if Env.QuestBossFarm then
-                                    CheckBossQuest(bossName)
-                                    local QuestUI = game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest
-                                    local QuestTitle = QuestUI.Container.QuestTitle.Title.Text
-                                    
-                                    if not string.find(QuestTitle, NameBoss) or QuestUI.Visible == false then
-                                        game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("AbandonQuest")
-                                        Tween(CFrameQBoss)
-                                        if (CFrameQBoss.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 5 then
-                                            game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("StartQuest", NameQuestBoss, QuestLvBoss)
-                                        end
-                                    end
-                                end
-
-                                -- ลูปตีบอส
-                                repeat task.wait()
-                                    EquipTool(SelectWeapon)
-                                    Tween(v.HumanoidRootPart.CFrame * Farm_Mode)
-                                    v.HumanoidRootPart.CanCollide = false
-                                    v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                    v.HumanoidRootPart.Transparency = 1
-                                    v.Humanoid:ChangeState(11)
-                                    v.Humanoid:ChangeState(14)
-                                    AutoClick()
-                                until not Env.AutoAllBoss or (not Env.QuestBossFarm and not Env.NoQuestBossFarm) or not v.Parent or v.Humanoid.Health <= 0
-                            end
-                        end
-                    else
-                        Tween(CFrameBoss)
-                    end
-                end)
-                if not Env.AutoAllBoss or (not Env.QuestBossFarm and not Env.NoQuestBossFarm) then break end
-            end
-        end
-    end
-end)
-
-----// Items Tab //----
-Tabs.Mains:Section({Title = ' [ Items Farm ] '})
-
-if First_Sea then
-    MaterialList = {"Scrap Metal","Leather","Angel Wings","Magma Ore","Fish Tail"}
-elseif Second_Sea then
-    MaterialList = {"Scrap Metal","Leather","Radioactive Material","Mystic Droplet","Magma Ore","Vampire Fang"}
-elseif Third_Sea then
-    MaterialList = {"Scrap Metal","Leather","Demonic Wisp","Conjured Cocoa","Dragon Scale","Gunpowder","Fish Tail","Mini Tusk"}
-end
-
-local SelectMat = Tabs.Items:Dropdown({
-		Title = 'Select Material',
-		Desc = 'Select a material to farm',
-		Image = 'chevron-down',
-		List = MaterialList,
-		Value = nil,
-		Callback = function(v)
-			Env.SelectedMaterial = v
-		end,
-	})
-
-    Tabs.Items:Toggle({
-        Title = 'Auto Farm Material',
-        Desc = 'Automatically farm materials',
-        Image = 'toggle-right',
-        Value = false,
-        Callback = function(v)
-            Env.AutoMaterial = v
-        end,
-    })
-
-    spawn(function()
-        while task.wait() do
-            if Env.AutoMaterial then
-                pcall(function()
-                    MaterialMon(Env.SelectedMaterial)
-                    Tween(MPos)
-                    for i, v in pairs(game.Workspace.Enemies:GetChildren()) do
-                        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
-                            if v.Name == MMon then
-                                repeat game:GetService("RunService").Heartbeat:wait()
-                                    EquipTool(SelectWeapon)
-                                    Tween(v.HumanoidRootPart.CFrame * Farm_Mode)
-                                    v.HumanoidRootPart.CanCollide = false
-                                    v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                    v.HumanoidRootPart.Transparency = 1
-                                    v.Humanoid:ChangeState(11)
-                                    v.Humanoid:ChangeState(14)
-                                    Material_Farm_Name = v.Name
-                                    Material_Farm_CFrame = v.HumanoidRootPart.CFrame
-                                    AutoClick()
-                                until not Env.AutoMaterial or not v.Parent or v.Humanoid.Health <= 0 or not game:GetService("Workspace").Enemies:FindFirstChild(v.Name)
-                            end
-                        end
-                    end
-                end)
-            end
-        end
-    end)
-
-    Tabs.Items:Section({Title = ' [ Elite Hunter Progress ] '})
-    local progelit = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("EliteHunter","Progress")
-Tabs.Items:Label({
-		Title = "Elite Boss Killed :" .. progelit
-	})
-
-Tabs.Items:Toggle({
-    Title = 'Auto Elite Hunter',
-    Desc = 'Automatically farms elite bosses.',
-    Image = 'toggle-right',
-    Value = false,
-    Callback = function(v)
-        Env.AutoEliteHunter = v
-    end,
-})
-
-spawn(function()
-    while task.wait() do
-        if Env.AutoEliteHunter then
-            pcall(function()
-                if game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Visible == true then
-                    if string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Diablo") or string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Deandre") or string.find(game:GetService("Players").LocalPlayer.PlayerGui.Main.Quest.Container.QuestTitle.Title.Text, "Urban") then
-                        if game:GetService("Workspace").Enemies:FindFirstChild("Diablo") or game:GetService("Workspace").Enemies:FindFirstChild("Deandre") or game:GetService("Workspace").Enemies:FindFirstChild("Urban") then
-                            for i, v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                                if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
-                                    if v.Name == "Diablo" or v.Name == "Deandre" or v.Name == "Urban" then
-                                        repeat game:GetService("RunService").Heartbeat:wait()
-                                            EquipTool(SelectWeapon)
-                                            Tween(v.HumanoidRootPart.CFrame * Farm_Mode)
-                                            v.HumanoidRootPart.CanCollide = false
-                                            v.HumanoidRootPart.Size = Vector3.new(60, 60, 60)
-                                            v.HumanoidRootPart.Transparency = 1
-                                            v.Humanoid:ChangeState(11)
-                                            v.Humanoid:ChangeState(14)
-                                            AutoClick()
-                                        until not Env.AutoEliteHunter or v.Humanoid.Health <= 0 or not v.Parent
-                                    end
-                                end
-                            end
-                        else
-                            if game:GetService("ReplicatedStorage"):FindFirstChild("Diablo") then
-                                Tween(game:GetService("ReplicatedStorage"):FindFirstChild("Diablo").HumanoidRootPart.CFrame)
-                            elseif game:GetService("ReplicatedStorage"):FindFirstChild("Deandre") then
-                                Tween(game:GetService("ReplicatedStorage"):FindFirstChild("Deandre").HumanoidRootPart.CFrame)
-                            elseif game:GetService("ReplicatedStorage"):FindFirstChild("Urban") then
-                                Tween(game:GetService("ReplicatedStorage"):FindFirstChild("Urban").HumanoidRootPart.CFrame)
-                            end
-                        end
-                    end
-                else
-                    game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("EliteHunter")
-                end
-            end)
-        end
-    end
-end)
-game.ReplicatedStorage.Remotes.CommF_:InvokeServer("CakePrinceSpawner")
-local response = game:GetService("ReplicatedStorage").Remotes.CommF_:InvokeServer("CakePrinceSpawner")
-local length = string.len(response)
-local killedLeft = ""
-
-if length == 88 then
-    killedLeft = string.sub(response, 39, 41) .. " / 500"
-elseif length == 87 then
-    killedLeft = string.sub(response, 39, 40) .. " / 500"
-elseif length == 86 then
-    killedLeft = string.sub(response, 39, 39) .. " / 500"
-end
-Tabs.Items:Section({Title = ' [ Auto Pale Scarf (Cake Prince) ] '})
-Tabs.Items:Label({
-    Title = "Killed Left :" .. killedLeft
-})
-
-Tabs.Items:Toggle({
-    Title = 'Auto Cake Prince',
-    Desc = 'Automatically farms the selected boss.',
-    Image = 'toggle-right',
-    Value = false,
-    Callback = function(v)
-        Env.AutoCakePrince = v
-    end,
-})
-
-spawn(function()
-    while task.wait() do
-        if Env.AutoCakePrince then
-            pcall(function()
-                local cakePrince = game:GetService("Workspace").Enemies:FindFirstChild("Cake Prince")
-                if cakePrince or game.ReplicatedStorage:FindFirstChild("Cake Prince") then
-                    if cakePrince then
-                        for _, v in pairs(game.Workspace.Enemies:GetChildren()) do
-                            if v.Name == "Cake Prince" and v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-                                repeat
-                                    EquipTool(SelectWeapon)
-                                    if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude > 10 then
-                                        Tween(v.HumanoidRootPart.CFrame * Farm_Mode)
-                                    end
-                                    v.HumanoidRootPart.CanCollide = false
-                                    v.HumanoidRootPart.Size = Vector3.new(60,60,60)
-                                    v.HumanoidRootPart.Transparency = 1
-                                    v.Humanoid:ChangeState(11)
-                                    v.Humanoid:ChangeState(14)
-                                    CakePrince_Farm_Name = v.Name
-                                    CakePrince_Farm_CFrame = v.HumanoidRootPart.CFrame
-                                    AutoClick()
-                                    task.wait(0.03)
-                                until not Env.AutoCakePrince or not v.Parent or v.Humanoid.Health <= 0
-                            end
-                        end
-                    else
-                        local mirror = game:GetService("Workspace").Map.CakeLoaf.BigMirror.Other
-                        if mirror.Transparency == 0 and (CFrame.new(-1990.672607421875, 4532.99951171875, -14973.6748046875).Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude >= 2000 then
-                            Tween(CFrame.new(-2151.82153, 149.315704, -12404.9053))
-                        end
-                    end
-                else
-                    local foundMinion = false
-                    for _, v in pairs(game.Workspace.Enemies:GetChildren()) do
-                        if v:FindFirstChild("Humanoid") and v:FindFirstChild("HumanoidRootPart") and v.Humanoid.Health > 0 then
-                            if v.Name == "Cookie Crafter" or v.Name == "Cake Guard" or v.Name == "Baking Staff" or v.Name == "Head Baker" then
-                                foundMinion = true
-                                repeat
-                                    EquipTool(SelectWeapon)
-                                    if (game.Players.LocalPlayer.Character.HumanoidRootPart.Position - v.HumanoidRootPart.Position).Magnitude > 10 then
-                                        Tween(v.HumanoidRootPart.CFrame * Farm_Mode)
-                                    end
-                                    v.HumanoidRootPart.CanCollide = false
-                                    v.HumanoidRootPart.Size = Vector3.new(60,60,60)
-                                    v.HumanoidRootPart.Transparency = 1
-                                    v.Humanoid:ChangeState(11)
-                                    v.Humanoid:ChangeState(14)
-                                    CakePrince_Farm_Name = v.Name
-                                    CakePrince_Farm_CFrame = v.HumanoidRootPart.CFrame
-                                    AutoClick()
-                                    task.wait(0.03)
-                                until not Env.AutoCakePrince or not v.Parent or v.Humanoid.Health <= 0
-                            end
-                        end
-                    end
-                    if not foundMinion then
-                        local cakepos = CFrame.new(-2077, 252, -12373)
-                        Tween(cakepos)
-                    end
-                end
-            end)
-        end
-    end
-end)
-
-Tabs.Items:Section({Title = ' [ Auto Raid (Sea 2 & 3) ] '})
-Tabs.Items:Toggle({
-    Title = 'Auto Factory (Sea 2)',
-    Desc = 'Automatically farms the factory.',
-    Image = 'toggle-right',
-    Value = false,
-    Callback = function(v)
-        Env.AutoFactory = v
-    end,
-})
-
-spawn(function()
-    while task.wait() do
-        if Env.AutoFactory then
-            if game.Workspace.Enemies:FindFirstChild("Core") then
-                for i,v in pairs(game.Workspace.Enemies:GetChildren()) do
-                    if v.Name == "Core" and v.Humanoid.Health > 0 then
-                        repeat game:GetService("RunService").Heartbeat:wait()
-                            Tween(CFrame.new(448.46756, 199.356781, -441.389252))
-                            EquipTool(SelectWeapon)
-                            AutoClick()
-                        until not v.Parent or v.Humanoid.Health <= 0  or Env.AutoFactory == false
-                    end
-                end
-            elseif game.ReplicatedStorage:FindFirstChild("Core") then
-                repeat Tween(CFrame.new(448.46756, 199.356781, -441.389252))
-                    wait()
-                until not Env.AutoFactory or (game.Players.LocalPlayer.Character.HumanoidRootPart.Position-Vector3.new(448.46756, 199.356781, -441.389252)).Magnitude <= 10
-            end
-        end
-    end
-end)
-
-Tabs.Items:Toggle({
-    Title = 'Auto Castle Raid (Sea 3)',
-    Desc = 'Automatically participates in castle raids.',
-    Image = 'toggle-right',
-    Value = false,
-    Callback = function(v)
-        Env.AutoCastleRaid = v
-    end,
-})
-
-spawn(function()
-    while task.wait() do
-        if Env.AutoCastleRaid then
-            pcall(function()
-                local CFrameCastleRaid = CFrame.new(-5496.17432, 313.768921, -2841.53027, 0.924894512, 7.37058015e-09, 0.380223751, 3.5881019e-08, 1, -1.06665446e-07, -0.380223751, 1.12297109e-07, 0.924894512)
-                if (CFrame.new(-5539.3115234375, 313.800537109375, -2972.372314453125).Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude <= 500 then
-                    for i,v in pairs(game:GetService("Workspace").Enemies:GetChildren()) do
-                        if v:FindFirstChild("HumanoidRootPart") and v:FindFirstChild("Humanoid") and v.Humanoid.Health > 0 then
-                            if v.Name then
-                                if (v.HumanoidRootPart.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).Magnitude < 2000 then
-                                    repeat game:GetService("RunService").Heartbeat:wait()
-                                        EquipTool(SelectWeapon)
-                                        Tween(v.HumanoidRootPart.CFrame * Farm_Mode)
-                                        v.HumanoidRootPart.CanCollide = false
-                                        v.HumanoidRootPart.Size = Vector3.new(60,60,60)
-                                        v.HumanoidRootPart.Transparency = 1
-                                        v.Humanoid:ChangeState(11)
-                                        v.Humanoid:ChangeState(14)
-                                        PirateCastle_Name = v.Name
-                                        PirateCastle_CFrame = v.HumanoidRootPart.CFrame
-                                        AutoClick()
-                                    until not Env.AutoCastleRaid or not v.Parent or v.Humanoid.Health <= 0 or not game:GetService("Workspace").Enemies:FindFirstChild(v.Name)
-                                end
-                            end
-                        end
-                    end
-                else
-                    Tween(CFrameCastleRaid)
-                end
-            end)
-        end
-    end
-end)
-
 
 -----/// Dont touch this ///-----
 
@@ -2305,8 +1937,8 @@ local AttackModule = {
     _loop = nil,
     FrozenEnemies = {},
     LastAttack = 0,
-    Delay = 0.05,
-    NormalDelay = 0.05,
+    Delay = 0.08,
+    NormalDelay = 0.08,
 }
 
 local function IsAlive(char)
@@ -2327,18 +1959,7 @@ local function FreezeEnemy(e)
     end
 end
 
-local function UnfreezeEnemy(e)
-    if not e or not AttackModule.FrozenEnemies[e] then return end
-    local h = e:FindFirstChildOfClass("Humanoid")
-    local r = e:FindFirstChild("HumanoidRootPart")
-    if h and r then
-        AttackModule.FrozenEnemies[e] = nil
-        h.WalkSpeed, h.JumpPower, r.Anchored = 16, 50, false
-    end
-end
-
-            RegisterHit:FireServer(p,{[1]=e,[2]=p,[4]=AttackModule.HitID})
-            UnfreezeEnemy(e) -- Unfreeze the enemy after attacking
+local function AttackAll()
     if not client.Character or not IsAlive(client.Character) then return end
     if os.clock() - AttackModule.LastAttack < AttackModule.Delay then return end
     AttackModule.LastAttack = os.clock()
@@ -2351,6 +1972,7 @@ end
             RegisterHit:FireServer(p,{[1]=e,[2]=p,[4]=AttackModule.HitID})
         end
     end
+end
 
 AttackModule._loop = run.Heartbeat:Connect(function()
     if not Env.fastattack then
@@ -2373,7 +1995,7 @@ return {
     SetFastest = function(s)
         Env.fastest = s
         if s then
-            AttackModule.Delay = 0.03
+            AttackModule.Delay = 0.05
         else
             AttackModule.Delay = AttackModule.NormalDelay
         end
@@ -2386,4 +2008,4 @@ return {
 }
 
 
------/// Dont touch this ///----
+-----/// Dont touch this ///-----
